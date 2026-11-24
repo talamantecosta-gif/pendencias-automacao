@@ -6,11 +6,15 @@
   const DIAS_ANTIGA = 7;
 
   const S = await P.exigirLogin();
-  $('#nomeUsuario').textContent = S.nome;
-  $('#btnSair').onclick = () => P.sair();
+  P.menuUsuario($('#btnUsuario'));
+  const ICONE_ROTA = $('#btnRota').innerHTML;
+  // gaveta da lista no celular: toque na alça alterna média → aberta → recolhida
+  const painel = $('#painel');
+  $('#alca').onclick = () => { if (painel.classList.contains('aberto')) { painel.classList.remove('aberto'); painel.classList.add('fechado'); }
+    else if (painel.classList.contains('fechado')) painel.classList.remove('fechado'); else painel.classList.add('aberto'); setTimeout(() => mapa.invalidateSize(), 300); };
 
   // ---------- sincronizar (PC e celular) ----------
-  const botoesSinc = [$('#btnAtualizar'), $('#btnSincCel')];
+  const botoesSinc = [$('#btnAtualizar')];
   const marcarSinc = () => P.atualizarBotaoSinc(...botoesSinc);
   async function sincronizar() {
     botoesSinc.forEach(b => { b.disabled = true; b.textContent = 'Sincronizando…'; });
@@ -29,7 +33,7 @@
   const ruas = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '© OpenStreetMap' });
   satelite.addTo(mapa);
   const camTalhoes = L.layerGroup().addTo(mapa), camPinos = L.layerGroup().addTo(mapa), camRota = L.layerGroup().addTo(mapa);
-  L.control.layers({ 'Satélite': satelite, 'Mapa': ruas }, { 'Talhões': camTalhoes, 'Pendências': camPinos, 'Rota': camRota }, { position: 'topright' }).addTo(mapa);
+  L.control.layers({ 'Satélite': satelite, 'Mapa': ruas }, { 'Talhões': camTalhoes, 'Pendências': camPinos, 'Rota': camRota }, { position: 'bottomright' }).addTo(mapa);
 
   let D = { pendencias: [] }, APS = [], usina = USINA_PADRAO, selecionada = null, filtro = 'abertas';
 
@@ -39,6 +43,7 @@
     const off = P.offline();
     $('#info').textContent = !quando ? 'Nenhuma pendência publicada ainda' : off ? `Sem internet – dados de ${quando}` : `Atualizado em ${quando}`;
     $('#info').classList.toggle('offline', off);
+    $('#subLista').textContent = $('#info').textContent;
   }
   async function carregar() {
     $('#info').textContent = 'Carregando…'; P.resetCopia();
@@ -54,7 +59,7 @@
   const texto = p => [p.frota, p.equipamento, p.ocorrencia, p.frente, p.fazenda, p.talhao, p.fazProx && p.fazProx.faz].join(' ').toLowerCase();
   const classe = p => situacao(p) === 'Resolvido' ? 'atendida' : diasAberta(p) >= DIAS_ANTIGA ? 'antiga' : '';
   const rotuloDias = p => { const d = diasAberta(p); return situacao(p) === 'Resolvido' ? 'Atendida' : d == null ? '–' : d <= 0 ? 'Hoje' : d === 1 ? '1 dia' : d + ' dias'; };
-  const plaqueta = p => `<div class="plaqueta ${classe(p)}"><b>${esc(p.frota)}</b><i>${rotuloDias(p)}</i></div>`;
+  const etiqueta = p => `<span class="etiqueta ${classe(p)}">${situacao(p) === 'Resolvido' ? 'Atendida' : diasAberta(p) <= 0 ? 'Aberta hoje' : rotuloDias(p) + ' em aberto'}</span>`;
   const fazendaCurta = p => p.fazenda ? `Fazenda ${esc(p.fazenda)}, talhão ${esc(p.talhao || '–')}` : p.fazProx ? `Perto da fazenda ${esc(p.fazProx.faz)}` : '';
 
   function visiveis() {
@@ -69,12 +74,16 @@
     const at = D.pendencias.filter(p => situacao(p) === 'Resolvido').length;
     $('#nAbertas').textContent = D.pendencias.length - at; $('#nAtendidas').textContent = at; $('#nTodas').textContent = D.pendencias.length;
     const lista = visiveis();
+    const ab = D.pendencias.length - at, velhas = D.pendencias.filter(p => situacao(p) !== 'Resolvido' && diasAberta(p) >= DIAS_ANTIGA).length;
+    $('#titLista').textContent = filtro === 'atendidas' ? `${at} atendida${at === 1 ? '' : 's'}` : filtro === 'todas' ? `${D.pendencias.length} pendências` : `${ab} em aberto`;
+    if (D.geradoEm) $('#subLista').textContent = `${$('#info').textContent}.${velhas ? ` ${velhas} há mais de uma semana.` : ''}`;
     $('#itens').innerHTML = lista.map(p => {
-      const sit = situacao(p), extra = sit && sit !== 'Resolvido' ? `<span>${esc(sit)}</span>` : '';
-      return `<article class="item ${p === selecionada ? 'ativo' : ''}" data-i="${D.pendencias.indexOf(p)}" tabindex="0">
-        ${plaqueta(p)}
-        <div><h3>${esc(p.equipamento || 'Equipamento')}</h3><p>${esc(p.ocorrencia || '–')}</p>
-        <div class="meta"><span>${esc(p.frente || 'Sem frente')}</span>${fazendaCurta(p) ? `<span>${fazendaCurta(p)}</span>` : ''}${temPos(p) ? '' : '<span class="semposicao">Sem posição no SGPA</span>'}${extra}</div></div>
+      const sit = situacao(p), extra = sit && sit !== 'Resolvido' ? ` · ${esc(sit)}` : '';
+      return `<article class="item ${classe(p)} ${p === selecionada ? 'ativo' : ''}" data-i="${D.pendencias.indexOf(p)}" tabindex="0">
+        <span class="ponto"></span>
+        <div><div class="t"><b>${esc(p.frota)}</b> · ${esc(p.equipamento || 'Equipamento')}</div><small>${esc(p.ocorrencia || '–')}</small>
+        <div class="meta">${esc(p.frente || 'Sem frente')}${fazendaCurta(p) ? ' · ' + fazendaCurta(p) : ''}${temPos(p) ? '' : ' · <span class="semposicao">sem posição no SGPA</span>'}${extra}</div></div>
+        <span class="dias">${rotuloDias(p)}</span>
       </article>`;
     }).join('') || `<p class="vazio">${filtro === 'atendidas' ? 'Nenhuma pendência atendida ainda.' : 'Nenhuma pendência encontrada.'}</p>`;
     document.querySelectorAll('.item').forEach(el => {
@@ -90,7 +99,7 @@
         .on('click', () => abrirDetalhe(p)).addTo(camPinos);
       limites.push([p.lat, p.lon]);
     }
-    if (limites.length && !desenhar.ja) { mapa.fitBounds(limites, { padding: [50, 50], maxZoom: 13 }); desenhar.ja = true; }
+    if (limites.length && !desenhar.ja) { mapa.fitBounds(limites, innerWidth > 820 ? { paddingTopLeft: [430, 90], paddingBottomRight: [40, 40], maxZoom: 13 } : { paddingTopLeft: [20, 70], paddingBottomRight: [20, innerHeight * .46], maxZoom: 13 }); desenhar.ja = true; }
   }
   $('#busca').oninput = desenhar;
   document.querySelectorAll('.segmentos button').forEach(b => b.onclick = () => {
@@ -101,7 +110,7 @@
   async function carregarTalhoes() {
     try {
       const T = await P.lerCifrado('dados/talhoes.enc');
-      const estilo = { color: '#c9f0b4', weight: 1, opacity: .75, fillColor: '#6ab04c', fillOpacity: .06 };
+      const estilo = { color: '#bfe8cf', weight: 1, opacity: .8, fillColor: '#1fa463', fillOpacity: .07 };
       for (const t of T) {
         const aneis = t.a.map(r => { const c = []; for (let i = 0; i < r.length; i += 2) c.push([r[i], r[i + 1]]); return c; });
         L.polygon(aneis, estilo).bindTooltip(`${esc(t.n)} (${t.f}), talhão ${t.t}`, { className: 'talhao', sticky: true }).addTo(camTalhoes);
@@ -110,8 +119,9 @@
   }
 
   // ---------- janelas ----------
-  function janela(cabecalho, html, lateral = false) {
-    const f = document.createElement('div'); f.className = 'fundo-janela' + (lateral ? ' lateral' : '');
+  function janela(cabecalho, html, flutuante = false) {
+    document.querySelectorAll('.fundo-janela.flutuante').forEach(x => x.remove());
+    const f = document.createElement('div'); f.className = 'fundo-janela' + (flutuante ? ' flutuante' : '');
     f.innerHTML = `<div class="janela" role="dialog" aria-modal="true"><header>${cabecalho}<button class="fechar" aria-label="Fechar">×</button></header><div class="corpo">${html}</div></div>`;
     const anterior = document.activeElement;
     const fechar = () => { f.remove(); document.removeEventListener('keydown', esc_); if (anterior && anterior.focus) anterior.focus(); };
@@ -120,13 +130,13 @@
     document.body.appendChild(f); $('.fechar', f).focus();
     return { el: f, fechar };
   }
-  const cabPendencia = (p, sub) => `${plaqueta(p)}<div><h2>${esc(p.equipamento || 'Equipamento')}</h2><p>${sub}</p></div>`;
+  const cabPendencia = (p, sub) => `<div>${etiqueta(p)}<h2>Frota ${esc(p.frota)}</h2><p>${esc(p.equipamento || 'Equipamento')} · ${sub}</p></div>`;
   const linhaFazenda = p => p.fazenda ? `${esc(p.fazenda)}${p.zona ? ` (zona ${esc(p.zona)})` : ''}, talhão ${esc(p.talhao || '–')}`
     : p.fazProx ? `Fora de fazenda. Mais próxima: ${esc(p.fazProx.faz)}${p.fazProx.talhao ? ', talhão ' + esc(p.fazProx.talhao) : ''} (a ${p.fazProx.d < 1 ? Math.round(p.fazProx.d * 1000) + ' m' : p.fazProx.d.toFixed(1).replace('.', ',') + ' km'})` : (temPos(p) ? 'Fora de fazenda' : '–');
 
   function abrirDetalhe(p) {
     selecionada = p; desenhar();
-    if (temPos(p)) mapa.setView([p.lat, p.lon], Math.max(mapa.getZoom(), 14));
+    if (temPos(p)) mapa.flyTo([p.lat, p.lon], Math.max(mapa.getZoom(), 14), { duration: .6 });
     const d = diasAberta(p), hist = apsDe(p);
     const j = janela(cabPendencia(p, esc(p.ocorrencia || '')), `
       <dl class="ficha">
@@ -136,12 +146,21 @@
         <dt>Última posição</dt><dd>${temPos(p) ? esc(p.ultimaPosicao || '–') : 'Sem posição no SGPA'}</dd>
         ${p.localidade ? `<dt>Local informado</dt><dd>${esc(p.localidade)}</dd>` : ''}
       </dl>
-      ${hist.length ? `<div class="historico"><h4>Serviços registrados</h4>${hist.map(a => `<div class="reg"><b>${esc(a.situacao)}</b> por ${esc(a.nome)}<small>${fmtDataHora(a.inicio)} até ${fmtDataHora(a.fim)}${a.naFila ? ' – salvo no aparelho, falta sincronizar' : ''}</small>${esc(a.observacao)}</div>`).join('')}</div>` : ''}
+      ${hist.length ? `<div class="historico"><h4>Serviços registrados</h4>${hist.map((a, i) => `<div class="reg"><b>${esc(a.situacao)}</b> por ${esc(a.nome)}<small>${fmtDataHora(a.inicio)} até ${fmtDataHora(a.fim)}${a.naFila ? ' – salvo no aparelho, falta sincronizar' : ''}</small>${esc(a.observacao)}${S.admin && !a.naFila ? `<div class="acoes-admin"><button class="btn" data-ed="${i}">Editar</button><button class="btn perigo-borda" data-ex="${i}">Excluir</button></div>` : ''}</div>`).join('')}</div>` : ''}
       <div class="botoes">
         <button class="btn primario" data-a="apontar">Registrar serviço</button>
-        ${temPos(p) ? `<a class="btn" target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&destination=${p.lat},${p.lon}">Ir até o equipamento</a>` : ''}
-      </div>`);
+        ${S.admin && situacao(p) === 'Resolvido' ? '<button class="btn perigo-borda" data-a="reabrir">Reabrir pendência</button>' : ''}
+        ${temPos(p) ? `<a class="btn" target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&destination=${p.lat},${p.lon}">Ir até lá</a>` : ''}
+      </div>`, true);
     $('[data-a=apontar]', j.el).onclick = () => { j.fechar(); abrirApontamento(p); };
+    const recarregar = async () => { j.fechar(); APS = await P.carregarApontamentos().catch(() => APS); desenhar(); abrirDetalhe(p); };
+    j.el.querySelectorAll('[data-ed]').forEach(b => b.onclick = async () => { if (await P.acaoAdmin('editar', hist[+b.dataset.ed])) recarregar(); });
+    j.el.querySelectorAll('[data-ex]').forEach(b => b.onclick = async () => { if (await P.acaoAdmin('excluir', hist[+b.dataset.ex])) recarregar(); });
+    const rb = $('[data-a=reabrir]', j.el);
+    if (rb) rb.onclick = async () => {
+      if (!await P.confirmar('Reabrir esta pendência?', 'Os registros marcados como resolvidos passam para "Reaberta" e a pendência volta para Em aberto. O histórico continua salvo.', 'Reabrir pendência')) return;
+      try { await P.reabrirPendencia(hist); aviso('Pendência reaberta.'); recarregar(); } catch (e) { aviso(e.message, 'erro', 6000); }
+    };
   }
 
   // ---------- apontamento ----------
@@ -213,10 +232,10 @@
     return o;
   }
 
-  const botoesRota = [$('#btnRota'), $('#btnRotaCel')];
+  const botoesRota = [$('#btnRota')];
   async function tracarRota() {
     botoesRota.forEach(b => { b.disabled = true; b.textContent = 'Calculando…'; });
-    const fim = () => botoesRota.forEach(b => { b.disabled = false; b.textContent = 'Traçar rota'; });
+    const fim = () => botoesRota.forEach(b => { b.disabled = false; b.innerHTML = ICONE_ROTA; });
     const alvo = D.pendencias.filter(p => temPos(p) && situacao(p) !== 'Resolvido');
     if (!alvo.length) { fim(); return aviso('Nenhuma pendência em aberto com posição no mapa.', 'erro'); }
     const gps = await posicaoAtual(), inicio = gps || usina;
@@ -225,10 +244,10 @@
     const rota = melhorOrdem([inicio, ...paradas.map(g => g.c)]).map(i => paradas[i]);
     camRota.clearLayers();
     const linha = [inicio, ...rota.map(g => g.c)];
-    L.polyline(linha, { color: '#6ab04c', weight: 5, opacity: .95, className: 'rota-linha', renderer: L.svg() }).addTo(camRota);
-    L.circleMarker(inicio, { radius: 8, color: '#fff', weight: 3, fillColor: '#0f3d2e', fillOpacity: 1 }).bindTooltip(gps ? 'Você está aqui' : 'Usina').addTo(camRota);
+    L.polyline(linha, { color: '#0b5d3b', weight: 5, opacity: .95, className: 'rota-linha', renderer: L.svg() }).addTo(camRota);
+    L.circleMarker(inicio, { radius: 8, color: '#fff', weight: 3, fillColor: '#1fa463', fillOpacity: 1 }).bindTooltip(gps ? 'Você está aqui' : 'Usina').addTo(camRota);
     rota.forEach((g, i) => L.marker(g.c, { icon: L.divIcon({ className: '', html: `<span class="pino ordem">${i + 1}</span>`, iconSize: null }), zIndexOffset: 2000 }).addTo(camRota));
-    mapa.fitBounds(linha, { padding: [50, 50] });
+    mapa.fitBounds(linha, innerWidth > 820 ? { paddingTopLeft: [430, 90], paddingBottomRight: [420, 40] } : { paddingTopLeft: [20, 70], paddingBottomRight: [20, 60] });
     let total = 0, ant = inicio;
     const itens = rota.map(g => { const t = km(ant, g.c) * 1.2; total += t; ant = g.c;
       return `<li><span><b>${esc(g.itens[0].frente || 'Sem frente')}</b><br><small>Frota${g.itens.length > 1 ? 's' : ''} ${g.itens.map(p => esc(p.frota)).join(', ')}</small></span><small>${Math.round(t)} km</small></li>`; }).join('');

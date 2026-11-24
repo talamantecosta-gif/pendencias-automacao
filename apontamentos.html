@@ -3,37 +3,33 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#0f3d2e">
+  <meta name="theme-color" content="#0b5d3b">
   <link rel="manifest" href="manifest.json">
   <link rel="apple-touch-icon" href="icone-192.png">
   <link rel="icon" href="img/marca.png">
-  <title>Apontamentos – Pendências da automação</title>
-  <link rel="stylesheet" href="css/estilo.css">
+  <title>Registros – Pendências da automação</title>
+  <link rel="stylesheet" href="css/estilo.css?v=5">
 </head>
-<body>
-  <header class="topo">
-    <img class="logo marca" src="img/marca.png" alt="Bioenergética Aroeira">
-    <div class="titulo">
-      <strong>Pendências da automação</strong>
-      <span>Apontamentos</span>
-    </div>
-    <div class="acoes">
-      <a class="btn" href="index.html">Voltar ao mapa</a>
-      <button class="btn so-pc" id="btnAtualizar">Sincronizar</button>
-      <button class="btn usuario-btn" id="btnSair" title="Sair"><span id="nomeUsuario"></span> <small>Sair</small></button>
+<body class="pagina-reg">
+  <header class="barra">
+    <a class="marca" href="index.html"><img src="img/marca.png" alt="Bioenergética Aroeira"><span><b>Pendências da automação</b><small>Registros de serviço</small></span></a>
+    <div class="direita">
+      <a class="pilula" href="index.html"><svg class="ic" viewBox="0 0 24 24"><path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2z"/><path d="M9 4v14M15 6v14"/></svg>Mapa</a>
+      <button class="pilula" id="btnAtualizar">Sincronizar</button>
+      <button class="usr" id="btnUsuario" aria-label="Menu do usuário"></button>
     </div>
   </header>
 
-  <main class="pagina">
-    <h1>Apontamentos</h1>
+  <main class="conteudo">
+    <h1>Registros de serviço</h1>
     <p class="resumo" id="resumo">Carregando…</p>
-    <div class="barra">
+    <div class="filtros-reg">
       <label>De<input type="date" id="de"></label>
       <label>Até<input type="date" id="ate"></label>
-      <label>Situação<select id="sit"><option value="">Todas</option><option>Resolvido</option><option>Não resolvido – precisa retorno</option><option>Aguardando peça</option></select></label>
+      <label>Situação<select id="sit"><option value="">Todas</option><option>Resolvido</option><option>Não resolvido – precisa retorno</option><option>Aguardando peça</option><option>Reaberta</option></select></label>
       <label>Realizado por<select id="quem"><option value="">Todos</option></select></label>
       <label>Busca<input type="search" id="busca" placeholder="Frota, ocorrência, serviço"></label>
-      <div class="direita">
+      <div class="exportar">
         <button class="btn primario" id="btnExcel">Exportar Excel</button>
         <button class="btn" id="btnCsv">Exportar CSV</button>
       </div>
@@ -48,8 +44,8 @@
   </main>
 
   <script src="vendor/xlsx.mini.min.js"></script>
-  <script src="js/cripto.js"></script>
-  <script src="js/comum.js"></script>
-  <script src="js/apontamentos.js"></script>
+  <script src="js/cripto.js?v=5"></script>
+  <script src="js/comum.js?v=5"></script>
+  <script src="js/apontamentos.js?v=5"></script>
 </body>
 </html>

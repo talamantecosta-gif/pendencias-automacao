@@ -3,53 +3,46 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#0f3d2e">
+  <meta name="theme-color" content="#0b5d3b">
   <link rel="manifest" href="manifest.json">
   <link rel="apple-touch-icon" href="icone-192.png">
   <link rel="icon" href="img/marca.png">
   <title>Pendências da automação – Bioenergética Aroeira</title>
   <link rel="stylesheet" href="vendor/leaflet.css">
-  <link rel="stylesheet" href="css/estilo.css">
+  <link rel="stylesheet" href="css/estilo.css?v=5">
 </head>
 <body>
-  <header class="topo">
-    <img class="logo marca" src="img/marca.png" alt="Bioenergética Aroeira">
-    <div class="titulo">
-      <strong>Pendências da automação</strong>
-      <span id="info">Carregando…</span>
-    </div>
-    <div class="acoes">
-      <button class="btn folha so-pc" id="btnRota">Traçar rota</button>
-      <button class="btn so-pc" id="btnAtualizar" title="Envia os apontamentos salvos no aparelho e baixa as pendências novas">Sincronizar</button>
-      <a class="btn so-pc" href="apontamentos.html">Apontamentos</a>
-      <button class="btn usuario-btn" id="btnSair" title="Sair"><span id="nomeUsuario"></span> <small>Sair</small></button>
+  <div id="mapa" aria-label="Mapa das pendências"></div>
+
+  <header class="barra">
+    <a class="marca" href="index.html"><img src="img/marca.png" alt="Bioenergética Aroeira"><span><b>Pendências da automação</b><small id="info">Carregando…</small></span></a>
+    <label class="busca"><svg class="ic" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input type="search" id="busca" placeholder="Buscar frota, ocorrência ou fazenda" aria-label="Buscar"></label>
+    <div class="direita">
+      <a class="pilula so-pc" href="apontamentos.html"><svg class="ic" viewBox="0 0 24 24"><path d="M9 4h6v3H9zM7 5H5v16h14V5h-2"/><path d="m9 14 2 2 4-4"/></svg>Registros</a>
+      <button class="usr" id="btnUsuario" aria-label="Menu do usuário"></button>
     </div>
   </header>
 
-  <main class="principal">
-    <section class="lista" aria-label="Pendências">
-      <div class="filtros">
-        <input type="search" class="busca" id="busca" placeholder="Buscar frota, ocorrência, frente ou fazenda" aria-label="Buscar">
-        <div class="segmentos" role="group" aria-label="Filtrar pendências">
-          <button type="button" data-f="abertas" aria-pressed="true">Em aberto<b id="nAbertas">0</b></button>
-          <button type="button" data-f="atendidas" aria-pressed="false">Atendidas<b id="nAtendidas">0</b></button>
-          <button type="button" data-f="todas" aria-pressed="false">Todas<b id="nTodas">0</b></button>
-        </div>
+  <section class="painel" id="painel" aria-label="Pendências">
+    <button class="alca" id="alca" aria-label="Expandir ou recolher a lista"></button>
+    <div class="painel-topo">
+      <h2 id="titLista">Pendências</h2>
+      <p id="subLista"></p>
+      <div class="segmentos" role="group" aria-label="Filtrar pendências">
+        <button type="button" data-f="abertas" aria-pressed="true">Em aberto<b id="nAbertas">0</b></button>
+        <button type="button" data-f="atendidas" aria-pressed="false">Atendidas<b id="nAtendidas">0</b></button>
+        <button type="button" data-f="todas" aria-pressed="false">Todas<b id="nTodas">0</b></button>
       </div>
-      <div class="itens" id="itens"></div>
-    </section>
-    <div id="mapa" aria-label="Mapa das pendências"></div>
-  </main>
+    </div>
+    <div class="itens" id="itens"></div>
+  </section>
 
-  <nav class="barra-celular" aria-label="Ações">
-    <button class="btn folha" id="btnRotaCel">Traçar rota</button>
-    <button class="btn" id="btnSincCel">Sincronizar</button>
-    <a class="btn" href="apontamentos.html">Apontamentos</a>
-  </nav>
+  <button class="fab sec" id="btnAtualizar">Sincronizar</button>
+  <button class="fab" id="btnRota"><svg class="ic" viewBox="0 0 24 24"><circle cx="6" cy="19" r="2"/><circle cx="18" cy="5" r="2"/><path d="M8 19h7a3 3 0 0 0 0-6H9a3 3 0 0 1 0-6h7"/></svg>Traçar rota</button>
 
   <script src="vendor/leaflet.js"></script>
-  <script src="js/cripto.js"></script>
-  <script src="js/comum.js"></script>
-  <script src="js/app.js"></script>
+  <script src="js/cripto.js?v=5"></script>
+  <script src="js/comum.js?v=5"></script>
+  <script src="js/app.js?v=5"></script>
 </body>
 </html>

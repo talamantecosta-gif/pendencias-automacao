@@ -3,8 +3,7 @@
   'use strict';
   const P = window.Painel, { $, esc, fmtDataHora, aviso } = P;
   const S = await P.exigirLogin();
-  $('#nomeUsuario').textContent = S.nome;
-  $('#btnSair').onclick = () => P.sair();
+  P.menuUsuario($('#btnUsuario'));
 
   let APS = [];
   const dur = m => m == null ? '-' : `${Math.floor(m / 60)}h${P.p2(m % 60)}`;
@@ -29,10 +28,10 @@
     const horas = l.reduce((s, a) => s + (a.duracaoMin || 0), 0);
     $('#resumo').textContent = `${l.length} registro(s) no filtro, somando ${dur(horas)} de serviço. ${l.filter(a => a.situacao === 'Resolvido').length} resolvido(s).`;
     $('#linhas').innerHTML = l.map((a, i) => `<tr data-i="${APS.indexOf(a)}" tabindex="0">
-      <td class="frota">${esc(a.frota)}</td><td>${esc(a.equipamento || '–')}</td><td>${esc(a.ocorrencia || '–')}</td>
-      <td>${fmtDataHora(a.inicio)}</td><td>${fmtDataHora(a.fim)}</td><td>${dur(a.duracaoMin)}</td>
-      <td>${a.situacao === 'Resolvido' ? '<span class="etq verde">Resolvido</span>' : `<span class="etq">${esc(a.situacao)}</span>`}${a.naFila ? ' <span class="etq cinza">Falta sincronizar</span>' : ''}</td>
-      <td>${esc(a.nome)}</td><td>${(a.fotos || []).length || '–'}</td></tr>`).join('') || '<tr><td colspan="9" class="vazio">Nenhum registro com esses filtros. Ajuste as datas ou limpe a busca.</td></tr>';
+      <td class="frota">Frota ${esc(a.frota)}</td><td data-l="Equipamento">${esc(a.equipamento || '–')}</td><td class="ocorr" data-l="Ocorrência">${esc(a.ocorrencia || '–')}</td>
+      <td data-l="Início">${fmtDataHora(a.inicio)}</td><td data-l="Fim">${fmtDataHora(a.fim)}</td><td data-l="Duração">${dur(a.duracaoMin)}</td>
+      <td data-l="Situação">${a.situacao === 'Resolvido' ? '<span class="etq verde">Resolvido</span>' : `<span class="etq">${esc(a.situacao)}</span>`}${a.naFila ? ' <span class="etq cinza">Falta sincronizar</span>' : ''}</td>
+      <td data-l="Realizado por">${esc(a.nome)}</td><td data-l="Fotos">${(a.fotos || []).length || '–'}</td></tr>`).join('') || '<tr><td colspan="9" class="vazio">Nenhum registro com esses filtros. Ajuste as datas ou limpe a busca.</td></tr>';
     document.querySelectorAll('tbody tr[data-i]').forEach(tr => { tr.onclick = () => detalhe(APS[+tr.dataset.i]); tr.onkeydown = e => { if (e.key === 'Enter') detalhe(APS[+tr.dataset.i]); }; });
   }
   ['de', 'ate', 'sit', 'quem'].forEach(id => $('#' + id).onchange = desenhar);
@@ -46,7 +45,7 @@
 
   async function detalhe(a) {
     const f = document.createElement('div'); f.className = 'fundo-janela';
-    f.innerHTML = `<div class="janela" role="dialog" aria-modal="true"><header><div class="plaqueta ${a.situacao === 'Resolvido' ? 'atendida' : ''}"><b>${esc(a.frota)}</b><i>${a.situacao === 'Resolvido' ? 'Resolvido' : 'Em aberto'}</i></div><div><h2>${esc(a.equipamento || 'Equipamento')}</h2><p>${esc(a.ocorrencia || '')}</p></div><button class="fechar" aria-label="Fechar">×</button></header><div class="corpo">
+    f.innerHTML = `<div class="janela" role="dialog" aria-modal="true"><header><div><span class="etiqueta ${a.situacao === 'Resolvido' ? 'atendida' : ''}">${esc(a.situacao)}</span><h2>Frota ${esc(a.frota)}</h2><p>${esc(a.equipamento || 'Equipamento')} · ${esc(a.ocorrencia || '')}</p></div><button class="fechar" aria-label="Fechar">×</button></header><div class="corpo">
       <dl class="ficha">
         <dt>Abertura</dt><dd>${esc(a.dataAbertura || '-')}</dd>
         <dt>Frente</dt><dd>${esc(a.frente || '-')}</dd>
@@ -57,9 +56,11 @@
         <dt>Realizado por</dt><dd>${esc(a.nome)}</dd>
         <dt>O que foi feito</dt><dd>${esc(a.observacao).replace(/\n/g, '<br>')}</dd>
       </dl>
+      ${P.sessao().admin && !a.naFila ? '<div class="botoes"><button class="btn" data-adm="editar">Editar registro</button><button class="btn perigo-borda" data-adm="excluir">Excluir registro</button></div>' : ''}
       <div class="fotos-grandes">${(a.fotos || []).length ? '<p class="m">Carregando fotos…</p>' : ''}</div></div></div>`;
     f.onclick = e => { if (e.target === f) f.remove(); }; $('.fechar', f).onclick = () => f.remove();
     document.body.appendChild(f);
+    f.querySelectorAll('[data-adm]').forEach(b => b.onclick = async () => { if (await P.acaoAdmin(b.dataset.adm, a)) { f.remove(); carregar(); } });
     if ((a.fotos || []).length) {
       const box = $('.fotos-grandes', f), imgs = [];
       for (const c of a.fotos) { try { imgs.push(`<img src="${await P.carregarFoto(c)}" alt="Foto do serviço">`); } catch (e) { imgs.push('<p class="m">Foto indisponível.</p>'); } }
