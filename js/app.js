@@ -157,7 +157,7 @@
         <dt>Frente</dt><dd>${esc(p.frente || '–')}</dd>
         <dt>Fazenda</dt><dd>${linhaFazenda(p)}</dd>
         <dt>Última posição</dt><dd>${temPos(p) ? esc(p.ultimaPosicao || '–') : 'Sem posição no SGPA'}</dd>
-        ${p.fw ? `<dt>Firmware</dt><dd>${!p.fwEsperado ? `${esc(p.fw)} <small class="m">(sem referência)</small>` : p.fw !== p.fwEsperado ? `<span class="fw-erro">${esc(p.fw)} – o correto é ${esc(p.fwEsperado)}</span>` : `${esc(p.fw)} <span class="fw-ok">correto</span>`}</dd>` : ''}
+        ${p.fw ? `<dt>Firmware</dt><dd>${!p.fwEsperado ? `${esc(p.fw)} <small class="m">(${p.fwSemBase ? 'inventário indisponível no PC' : 'sem referência'})</small>` : p.fw !== p.fwEsperado ? `<span class="fw-erro">${esc(p.fw)} – o correto é ${esc(p.fwEsperado)}</span>` : `${esc(p.fw)} <span class="fw-ok">correto</span>`}</dd>` : ''}
         ${p.localidade ? `<dt>Local informado</dt><dd>${esc(p.localidade)}</dd>` : ''}
       </dl>
       ${hist.length ? `<div class="historico"><h4>Serviços registrados</h4>${hist.map((a, i) => `<div class="reg"><b>${esc(a.situacao)}</b> por ${esc(a.nome)}<small>${fmtDataHora(a.inicio)} até ${fmtDataHora(a.fim)}${a.naFila ? ' – salvo no aparelho, falta sincronizar' : ''}</small>${esc(a.observacao)}${S.admin && !a.naFila ? `<div class="acoes-admin"><button class="btn" data-ed="${i}">Editar</button><button class="btn perigo-borda" data-ex="${i}">Excluir</button></div>` : ''}</div>`).join('')}</div>` : ''}
