@@ -1,10 +1,12 @@
 /* Service worker – faz o painel abrir e funcionar sem internet.
  * Site: guardado na instalação. Dados (criptografados): rede primeiro, cópia salva se estiver offline.
  * Mapa de satélite: os pedaços já vistos ficam guardados (até ~4000). API do GitHub: nunca guardada. */
-const VERSAO = 'pend-v2';
+const VERSAO = 'pend-v3';
 const SITE = ['./', 'index.html', 'apontamentos.html', 'css/estilo.css', 'js/cripto.js', 'js/comum.js', 'js/app.js', 'js/apontamentos.js',
   'vendor/leaflet.js', 'vendor/leaflet.css', 'vendor/xlsx.mini.min.js', 'vendor/images/layers.png', 'vendor/images/layers-2x.png',
-  'vendor/images/marker-icon.png', 'manifest.json', 'icone-192.png', 'icone-512.png'];
+  'vendor/images/marker-icon.png', 'manifest.json', 'icone-192.png', 'icone-512.png',
+  'img/logo.png', 'img/marca.png', 'vendor/fonts/barlow-latin-400-normal.woff2', 'vendor/fonts/barlow-latin-500-normal.woff2',
+  'vendor/fonts/barlow-latin-600-normal.woff2', 'vendor/fonts/barlow-condensed-latin-600-normal.woff2', 'vendor/fonts/barlow-condensed-latin-700-normal.woff2'];
 const DADOS = ['dados/usuarios.json', 'dados/config.enc', 'dados/pendencias.enc', 'dados/talhoes.enc', 'dados/apontamentos.enc'];
 const MAX_MAPA = 4000;
 
