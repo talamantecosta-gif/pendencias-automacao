@@ -3,38 +3,44 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#1f7a45">
+  <meta name="theme-color" content="#0f3d2e">
   <link rel="manifest" href="manifest.json">
   <link rel="apple-touch-icon" href="icone-192.png">
-  <title>Apontamentos – Pendências Automação</title>
+  <link rel="icon" href="img/marca.png">
+  <title>Apontamentos – Pendências da automação</title>
   <link rel="stylesheet" href="css/estilo.css">
 </head>
 <body>
   <header class="topo">
-    <div class="marca">Pendências <b>Automação</b> · Apontamentos</div>
+    <img class="logo marca" src="img/marca.png" alt="Bioenergética Aroeira">
+    <div class="titulo">
+      <strong>Pendências da automação</strong>
+      <span>Apontamentos</span>
+    </div>
     <div class="acoes">
       <a class="btn" href="index.html">Voltar ao mapa</a>
-      <button class="btn" id="btnAtualizar">Sincronizar</button>
-      <button class="btn" id="btnSair"><span class="usuario" id="nomeUsuario"></span> · Sair</button>
+      <button class="btn so-pc" id="btnAtualizar">Sincronizar</button>
+      <button class="btn usuario-btn" id="btnSair" title="Sair"><span id="nomeUsuario"></span> <small>Sair</small></button>
     </div>
   </header>
 
   <main class="pagina">
+    <h1>Apontamentos</h1>
+    <p class="resumo" id="resumo">Carregando…</p>
     <div class="barra">
       <label>De<input type="date" id="de"></label>
       <label>Até<input type="date" id="ate"></label>
       <label>Situação<select id="sit"><option value="">Todas</option><option>Resolvido</option><option>Não resolvido – precisa retorno</option><option>Aguardando peça</option></select></label>
       <label>Realizado por<select id="quem"><option value="">Todos</option></select></label>
-      <label>Busca<input type="search" id="busca" placeholder="Frota, ocorrência, observação…"></label>
+      <label>Busca<input type="search" id="busca" placeholder="Frota, ocorrência, serviço"></label>
       <div class="direita">
         <button class="btn primario" id="btnExcel">Exportar Excel</button>
-        <button class="btn" id="btnCsv">CSV</button>
+        <button class="btn" id="btnCsv">Exportar CSV</button>
       </div>
     </div>
-    <p class="m" id="resumo"></p>
     <div class="tabela-wrap">
       <table>
-        <thead><tr><th>Início</th><th>Fim</th><th>Duração</th><th>Frota</th><th>Equipamento</th><th>Ocorrência</th><th>Situação</th><th>Realizado por</th><th>Fotos</th></tr></thead>
+        <thead><tr><th>Frota</th><th>Equipamento</th><th>Ocorrência</th><th>Início</th><th>Fim</th><th>Duração</th><th>Situação</th><th>Realizado por</th><th>Fotos</th></tr></thead>
         <tbody id="linhas"><tr><td colspan="9" class="vazio">Carregando…</td></tr></tbody>
       </table>
     </div>
