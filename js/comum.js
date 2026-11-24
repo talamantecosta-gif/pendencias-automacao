@@ -55,9 +55,10 @@
     return new Promise(ok => {
       const box = document.createElement('div');
       box.id = 'login';
-      box.innerHTML = `<form class="cartao">
-        <div class="marca">Pendências <b>Automação</b></div>
-        <p class="sub">COA · Bioenergética Aroeira</p>
+      box.innerHTML = `<div class="lado"><img src="img/logo.png" alt="Bioenergética Aroeira"><p>Pendências da automação: onde estão os equipamentos e o registro de cada serviço feito em campo.</p></div>
+        <form>
+        <h1>Entrar</h1>
+        <p class="sub">Use o usuário e a senha que você recebeu do COA.</p>
         <label>Usuário<input name="u" autocomplete="username" autocapitalize="none" required></label>
         <label>Senha<input name="s" type="password" autocomplete="current-password" required></label>
         <label class="linha"><input type="checkbox" name="m" checked> Manter conectado neste aparelho</label>
@@ -126,10 +127,12 @@
     catch (e) { return { enviado: false, erro: e }; }
   }
   // Barra de sincronização (mostra quantos estão no aparelho e se está offline)
-  async function atualizarBotaoSinc(btn) {
+  async function atualizarBotaoSinc(...btns) {
     const n = await filaQtd();
-    btn.textContent = n ? `Sincronizar (${n})` : 'Sincronizar';
-    btn.classList.toggle('alerta', n > 0);
+    for (const btn of btns) { if (!btn) continue;
+      btn.innerHTML = n ? `Sincronizar <span class="contador">${n}</span>` : 'Sincronizar';
+      btn.classList.toggle('alerta', n > 0);
+      btn.title = n ? `${n} apontamento(s) salvos no aparelho, ainda não enviados` : 'Envia os apontamentos salvos no aparelho e baixa as pendências novas'; }
   }
   async function sincronizar() {
     if (!navigator.onLine) throw new Error('Sem internet. Os apontamentos continuam salvos no aparelho.');
