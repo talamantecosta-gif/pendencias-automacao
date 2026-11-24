@@ -27,13 +27,13 @@
   function desenhar() {
     const l = filtrados();
     const horas = l.reduce((s, a) => s + (a.duracaoMin || 0), 0);
-    $('#resumo').textContent = `${l.length} apontamento(s) · ${dur(horas)} de serviço · ${l.filter(a => a.situacao === 'Resolvido').length} resolvido(s)`;
-    $('#linhas').innerHTML = l.map((a, i) => `<tr data-i="${APS.indexOf(a)}">
+    $('#resumo').textContent = `${l.length} registro(s) no filtro, somando ${dur(horas)} de serviço. ${l.filter(a => a.situacao === 'Resolvido').length} resolvido(s).`;
+    $('#linhas').innerHTML = l.map((a, i) => `<tr data-i="${APS.indexOf(a)}" tabindex="0">
+      <td class="frota">${esc(a.frota)}</td><td>${esc(a.equipamento || '–')}</td><td>${esc(a.ocorrencia || '–')}</td>
       <td>${fmtDataHora(a.inicio)}</td><td>${fmtDataHora(a.fim)}</td><td>${dur(a.duracaoMin)}</td>
-      <td><b>${esc(a.frota)}</b></td><td>${esc(a.equipamento || '-')}</td><td>${esc(a.ocorrencia || '-')}</td>
-      <td>${a.situacao === 'Resolvido' ? '<span class="etq verde">Resolvido</span>' : `<span class="etq">${esc(a.situacao)}</span>`}${a.naFila ? ' <span class="etq cinza">no aparelho – falta sincronizar</span>' : ''}</td>
-      <td>${esc(a.nome)}</td><td>${(a.fotos || []).length || '-'}</td></tr>`).join('') || '<tr><td colspan="9" class="vazio">Nenhum apontamento no filtro.</td></tr>';
-    document.querySelectorAll('tbody tr[data-i]').forEach(tr => tr.onclick = () => detalhe(APS[+tr.dataset.i]));
+      <td>${a.situacao === 'Resolvido' ? '<span class="etq verde">Resolvido</span>' : `<span class="etq">${esc(a.situacao)}</span>`}${a.naFila ? ' <span class="etq cinza">Falta sincronizar</span>' : ''}</td>
+      <td>${esc(a.nome)}</td><td>${(a.fotos || []).length || '–'}</td></tr>`).join('') || '<tr><td colspan="9" class="vazio">Nenhum registro com esses filtros. Ajuste as datas ou limpe a busca.</td></tr>';
+    document.querySelectorAll('tbody tr[data-i]').forEach(tr => { tr.onclick = () => detalhe(APS[+tr.dataset.i]); tr.onkeydown = e => { if (e.key === 'Enter') detalhe(APS[+tr.dataset.i]); }; });
   }
   ['de', 'ate', 'sit', 'quem'].forEach(id => $('#' + id).onchange = desenhar);
   $('#busca').oninput = desenhar;
@@ -46,10 +46,8 @@
 
   async function detalhe(a) {
     const f = document.createElement('div'); f.className = 'fundo-janela';
-    f.innerHTML = `<div class="janela"><header><h2>Frota ${esc(a.frota)}</h2><button class="fechar">×</button></header><div class="corpo">
+    f.innerHTML = `<div class="janela" role="dialog" aria-modal="true"><header><div class="plaqueta ${a.situacao === 'Resolvido' ? 'atendida' : ''}"><b>${esc(a.frota)}</b><i>${a.situacao === 'Resolvido' ? 'Resolvido' : 'Em aberto'}</i></div><div><h2>${esc(a.equipamento || 'Equipamento')}</h2><p>${esc(a.ocorrencia || '')}</p></div><button class="fechar" aria-label="Fechar">×</button></header><div class="corpo">
       <dl class="ficha">
-        <dt>Equipamento</dt><dd>${esc(a.equipamento || '-')}</dd>
-        <dt>Ocorrência</dt><dd>${esc(a.ocorrencia || '-')}</dd>
         <dt>Abertura</dt><dd>${esc(a.dataAbertura || '-')}</dd>
         <dt>Frente</dt><dd>${esc(a.frente || '-')}</dd>
         <dt>Fazenda</dt><dd>${a.fazenda ? esc(a.fazenda) + ' · Talhão ' + esc(a.talhao || '-') : '-'}</dd>
@@ -57,7 +55,7 @@
         <dt>Fim</dt><dd>${fmtDataHora(a.fim)} (${dur(a.duracaoMin)})</dd>
         <dt>Situação</dt><dd>${esc(a.situacao)}</dd>
         <dt>Realizado por</dt><dd>${esc(a.nome)}</dd>
-        <dt>Serviço</dt><dd>${esc(a.observacao).replace(/\n/g, '<br>')}</dd>
+        <dt>O que foi feito</dt><dd>${esc(a.observacao).replace(/\n/g, '<br>')}</dd>
       </dl>
       <div class="fotos-grandes">${(a.fotos || []).length ? '<p class="m">Carregando fotos…</p>' : ''}</div></div></div>`;
     f.onclick = e => { if (e.target === f) f.remove(); }; $('.fechar', f).onclick = () => f.remove();
