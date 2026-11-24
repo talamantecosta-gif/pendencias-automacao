@@ -208,8 +208,8 @@
   const carregarFoto = async caminho => (await C.decifrar(S.chave, await ghLer(caminho))).img;
   const resetCopia = () => { usandoCopia = false; };
 
-  // Foto do celular → JPEG reduzido (máx. 1280 px, ~150–250 KB)
-  function reduzirFoto(arquivo, max = 1280, qualidade = 0.6) {
+  // Foto do celular → JPEG reduzido (máx. 1024 px, ~80–150 KB)
+  function reduzirFoto(arquivo, max = 1024, qualidade = 0.55) {
     return new Promise((ok, erro) => {
       const img = new Image(), url = URL.createObjectURL(arquivo);
       img.onload = () => {

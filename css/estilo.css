@@ -103,6 +103,7 @@ svg.ic { width: 20px; height: 20px; stroke: currentColor; fill: none; stroke-wid
 .pino.ordem { background: var(--esmeralda); color: #fff; padding: 7px 11px; font-size: 14px; }
 .pino.ordem::before { display: none; }
 .leaflet-bottom.leaflet-right { margin-bottom: 84px; }
+.num-talhao { transform: translate(-50%, -50%); font: 700 11px/1 Manrope, sans-serif; color: #2b2f2d; text-shadow: 0 0 3px rgba(255,255,255,.9); white-space: nowrap; pointer-events: none; }
 .leaflet-tooltip.talhao { font: 600 13px Manrope, sans-serif; border-radius: 8px; }
 .rota-linha { stroke-dasharray: 2400; stroke-dashoffset: 2400; animation: tracar 1.4s ease-out forwards; }
 @keyframes tracar { to { stroke-dashoffset: 0; } }

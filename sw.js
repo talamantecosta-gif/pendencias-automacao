@@ -1,7 +1,7 @@
 /* Service worker – faz o painel abrir e funcionar sem internet.
  * Site: guardado na instalação. Dados (criptografados): rede primeiro, cópia salva se estiver offline.
  * Mapa de satélite: os pedaços já vistos ficam guardados (até ~4000). API do GitHub: nunca guardada. */
-const VERSAO = 'pend-v5';
+const VERSAO = 'pend-v6';
 const SITE = ['./', 'index.html', 'apontamentos.html', 'css/estilo.css', 'js/cripto.js', 'js/comum.js', 'js/app.js', 'js/apontamentos.js',
   'vendor/leaflet.js', 'vendor/leaflet.css', 'vendor/xlsx.mini.min.js', 'vendor/images/layers.png', 'vendor/images/layers-2x.png',
   'vendor/images/marker-icon.png', 'manifest.json', 'icone-192.png', 'icone-512.png',
@@ -41,6 +41,14 @@ self.addEventListener('fetch', e => {
   }
   if (url.origin !== location.origin) return;
   const chave = semBusca(req.url);
+  if (url.pathname.endsWith('/dados/talhoes.enc')) { // shape: abre na hora pela cópia salva e atualiza em segundo plano
+    e.respondWith((async () => {
+      const c = await caches.open(VERSAO), salvo = await c.match(chave);
+      const rede = fetch(req).then(r => { if (r.ok) c.put(chave, r.clone()); return r; }).catch(() => null);
+      return salvo || (await rede) || new Response('', { status: 504 });
+    })());
+    return;
+  }
   if (url.pathname.includes('/dados/')) { // dados: rede primeiro, cópia salva se offline
     e.respondWith((async () => {
       const c = await caches.open(VERSAO);

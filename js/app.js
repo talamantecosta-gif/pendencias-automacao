@@ -110,12 +110,24 @@
   async function carregarTalhoes() {
     try {
       const T = await P.lerCifrado('dados/talhoes.enc');
-      // Talhões em cinza destacado (contorno escuro + preenchimento cinza) – ajuste aqui se quiser mais ou menos forte
-      const estilo = { color: '#4b524e', weight: 1.4, opacity: 1, fillColor: '#b9bfbb', fillOpacity: .45 };
+      // Estilo "mapa de talhões": preenchimento branco translúcido (a imagem aparece por baixo) e contorno fino cinza
+      const estilo = { color: '#7d8580', weight: .8, opacity: .8, fillColor: '#ffffff', fillOpacity: .5 };
+      const rotulos = [];
       for (const t of T) {
         const aneis = t.a.map(r => { const c = []; for (let i = 0; i < r.length; i += 2) c.push([r[i], r[i + 1]]); return c; });
         L.polygon(aneis, estilo).bindTooltip(`${esc(t.n)} (${t.f}), talhão ${t.t}`, { className: 'talhao', sticky: true }).addTo(camTalhoes);
+        const r = t.a[0]; let la = 0, lo = 0; for (let i = 0; i < r.length; i += 2) { la += r[i]; lo += r[i + 1]; }
+        rotulos.push({ c: [la / (r.length / 2), lo / (r.length / 2)], t: t.t });
       }
+      // número do talhão aparece só com zoom de perto, e só o que está na tela (mantém o mapa leve)
+      const camNum = L.layerGroup().addTo(mapa);
+      const desenharNum = () => {
+        camNum.clearLayers();
+        if (mapa.getZoom() < 14 || !mapa.hasLayer(camTalhoes)) return;
+        const b = mapa.getBounds().pad(.1);
+        for (const r of rotulos) if (b.contains(r.c)) L.marker(r.c, { icon: L.divIcon({ className: 'num-talhao', html: esc(r.t), iconSize: null }), interactive: false, keyboard: false }).addTo(camNum);
+      };
+      mapa.on('moveend zoomend overlayadd overlayremove', desenharNum); desenharNum();
     } catch (e) { console.warn('talhões', e); }
   }
 
