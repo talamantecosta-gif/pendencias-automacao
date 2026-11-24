@@ -34,7 +34,7 @@
   async function entrar(usuario, senha, manter) {
     const usuarios = JSON.parse(await lerArquivo('dados/usuarios.json'));
     const s = await C.abrirComSenha(usuarios, usuario, senha);
-    const guardar = { chaveB64: s.chaveB64, usuario: s.usuario, nome: s.nome, admin: !!s.admin };
+    const guardar = { v: 2, chaveB64: s.chaveB64, usuario: s.usuario, nome: s.nome, admin: !!s.admin };
     (manter ? localStorage : sessionStorage).setItem(SESSAO, JSON.stringify(guardar));
     return iniciarSessao(guardar);
   }
@@ -46,7 +46,11 @@
   async function sessaoSalva() {
     const t = localStorage.getItem(SESSAO) || sessionStorage.getItem(SESSAO);
     if (!t) return null;
-    try { return await iniciarSessao(JSON.parse(t)); } catch (e) { sair(false); return null; }
+    try {
+      const g = JSON.parse(t);
+      if (g.v !== 2) { sair(false); return null; } // login antigo (sem perfil de administrador): pede para entrar de novo uma vez
+      return await iniciarSessao(g);
+    } catch (e) { sair(false); return null; }
   }
   function sair(recarregar = true) { localStorage.removeItem(SESSAO); sessionStorage.removeItem(SESSAO); if (recarregar) location.reload(); }
 
@@ -55,15 +59,18 @@
     return new Promise(ok => {
       const box = document.createElement('div');
       box.id = 'login';
-      box.innerHTML = `<div class="lado"><img src="img/logo.png" alt="Bioenergética Aroeira"><p>Pendências da automação: onde estão os equipamentos e o registro de cada serviço feito em campo.</p></div>
+      box.innerHTML = `<div class="cartao-login">
+        <div class="cab-login"><img src="img/logo.png" alt="Bioenergética Aroeira"></div>
         <form>
-        <h1>Entrar</h1>
-        <p class="sub">Use o usuário e a senha que você recebeu do COA.</p>
-        <label>Usuário<input name="u" autocomplete="username" autocapitalize="none" required></label>
-        <label>Senha<input name="s" type="password" autocomplete="current-password" required></label>
-        <label class="linha"><input type="checkbox" name="m" checked> Manter conectado neste aparelho</label>
-        <button class="btn primario" type="submit">Entrar</button>
-        <p class="erro" hidden></p></form>`;
+          <h1>Pendências da automação</h1>
+          <p class="sub">Entre com o usuário e a senha que você recebeu do COA.</p>
+          <label>Usuário<input name="u" autocomplete="username" autocapitalize="none" required></label>
+          <label>Senha<input name="s" type="password" autocomplete="current-password" required></label>
+          <label class="linha"><input type="checkbox" name="m" checked> Manter conectado neste aparelho</label>
+          <button class="btn primario" type="submit">Entrar</button>
+          <p class="erro" hidden></p>
+        </form></div>
+        <p class="rodape-login">COA · Bioenergética Aroeira</p>`;
       document.body.appendChild(box);
       const f = $('form', box), erro = $('.erro', box);
       f.onsubmit = async ev => {

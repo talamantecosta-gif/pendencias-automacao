@@ -110,7 +110,8 @@
   async function carregarTalhoes() {
     try {
       const T = await P.lerCifrado('dados/talhoes.enc');
-      const estilo = { color: '#bfe8cf', weight: 1, opacity: .8, fillColor: '#1fa463', fillOpacity: .07 };
+      // Talhões em cinza destacado (contorno escuro + preenchimento cinza) – ajuste aqui se quiser mais ou menos forte
+      const estilo = { color: '#4b524e', weight: 1.4, opacity: 1, fillColor: '#b9bfbb', fillOpacity: .45 };
       for (const t of T) {
         const aneis = t.a.map(r => { const c = []; for (let i = 0; i < r.length; i += 2) c.push([r[i], r[i + 1]]); return c; });
         L.polygon(aneis, estilo).bindTooltip(`${esc(t.n)} (${t.f}), talhão ${t.t}`, { className: 'talhao', sticky: true }).addTo(camTalhoes);
@@ -148,18 +149,19 @@
       </dl>
       ${hist.length ? `<div class="historico"><h4>Serviços registrados</h4>${hist.map((a, i) => `<div class="reg"><b>${esc(a.situacao)}</b> por ${esc(a.nome)}<small>${fmtDataHora(a.inicio)} até ${fmtDataHora(a.fim)}${a.naFila ? ' – salvo no aparelho, falta sincronizar' : ''}</small>${esc(a.observacao)}${S.admin && !a.naFila ? `<div class="acoes-admin"><button class="btn" data-ed="${i}">Editar</button><button class="btn perigo-borda" data-ex="${i}">Excluir</button></div>` : ''}</div>`).join('')}</div>` : ''}
       <div class="botoes">
-        <button class="btn primario" data-a="apontar">Registrar serviço</button>
-        ${S.admin && situacao(p) === 'Resolvido' ? '<button class="btn perigo-borda" data-a="reabrir">Reabrir pendência</button>' : ''}
+        ${situacao(p) === 'Resolvido'
+          ? (S.admin ? '<button class="btn perigo-borda" data-a="reabrir">Voltar para pendente</button>' : '<p class="nota">Pendência atendida. Para registrar outro serviço, um administrador precisa voltá-la para pendente.</p>')
+          : '<button class="btn primario" data-a="apontar">Registrar serviço</button>'}
         ${temPos(p) ? `<a class="btn" target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&destination=${p.lat},${p.lon}">Ir até lá</a>` : ''}
       </div>`, true);
-    $('[data-a=apontar]', j.el).onclick = () => { j.fechar(); abrirApontamento(p); };
+    const ba = $('[data-a=apontar]', j.el); if (ba) ba.onclick = () => { j.fechar(); abrirApontamento(p); };
     const recarregar = async () => { j.fechar(); APS = await P.carregarApontamentos().catch(() => APS); desenhar(); abrirDetalhe(p); };
     j.el.querySelectorAll('[data-ed]').forEach(b => b.onclick = async () => { if (await P.acaoAdmin('editar', hist[+b.dataset.ed])) recarregar(); });
     j.el.querySelectorAll('[data-ex]').forEach(b => b.onclick = async () => { if (await P.acaoAdmin('excluir', hist[+b.dataset.ex])) recarregar(); });
     const rb = $('[data-a=reabrir]', j.el);
     if (rb) rb.onclick = async () => {
-      if (!await P.confirmar('Reabrir esta pendência?', 'Os registros marcados como resolvidos passam para "Reaberta" e a pendência volta para Em aberto. O histórico continua salvo.', 'Reabrir pendência')) return;
-      try { await P.reabrirPendencia(hist); aviso('Pendência reaberta.'); recarregar(); } catch (e) { aviso(e.message, 'erro', 6000); }
+      if (!await P.confirmar('Voltar esta pendência para pendente?', 'Ela sai de Atendidas e volta para Em aberto. Os registros deixam de ser "Resolvido" e passam para "Reaberta"; o histórico continua salvo.', 'Voltar para pendente')) return;
+      try { await P.reabrirPendencia(hist); aviso('Pendência voltou para Em aberto.'); recarregar(); } catch (e) { aviso(e.message, 'erro', 6000); }
     };
   }
 

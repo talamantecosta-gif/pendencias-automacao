@@ -132,6 +132,7 @@ svg.ic { width: 20px; height: 20px; stroke: currentColor; fill: none; stroke-wid
 .acoes-admin .btn { min-height: 34px; padding: 5px 12px; font-size: 13px; }
 .botoes { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 18px; }
 .botoes .btn { flex: 1 1 auto; }
+.nota { margin: 0; color: var(--suave); font-size: 14px; background: var(--fundo); border-radius: 12px; padding: 11px 14px; flex: 1 1 100%; }
 
 form.ap label { display: block; margin: 14px 0 5px; color: var(--suave); font-size: 14px; font-weight: 600; }
 form.ap input, form.ap select, form.ap textarea { width: 100%; padding: 12px 14px; border: 1px solid var(--linha); border-radius: 12px; background: var(--branco); }
@@ -154,20 +155,22 @@ form.ap .quem { background: var(--menta); border-radius: 12px; padding: 11px 14p
 .rota .total { display: flex; justify-content: space-between; font-weight: 800; margin-top: 6px; }
 .rota .dica { background: var(--menta); color: var(--esmeralda); border-radius: 12px; padding: 11px 14px; margin-top: 12px; font-size: 14px; }
 
-/* ---------- login ---------- */
-#login { position: fixed; inset: 0; display: grid; grid-template-columns: minmax(320px, 42%) 1fr; z-index: 3000; background: var(--fundo); }
-#login .lado { background: radial-gradient(120% 90% at 20% 10%, #127a50 0%, var(--esmeralda) 45%, #08452c 100%); display: flex; flex-direction: column; justify-content: space-between; padding: 48px; color: #cfe9da; }
-#login .lado img { width: min(210px, 58%); }
-#login .lado p { margin: 0; max-width: 34ch; font-size: 15px; }
-#login form { align-self: center; justify-self: center; width: min(380px, 88vw); }
-#login h1 { font-weight: 800; font-size: 32px; letter-spacing: -.6px; margin: 0 0 4px; }
-#login .sub { color: var(--suave); margin: 0 0 22px; }
+/* ---------- login: cartão centralizado sobre fundo esmeralda ---------- */
+#login { position: fixed; inset: 0; z-index: 3000; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 18px; padding: 24px 16px; overflow: auto;
+  background: radial-gradient(90% 70% at 15% 10%, #13855a 0%, transparent 60%), radial-gradient(80% 70% at 90% 100%, #0d6a44 0%, transparent 55%), #08452c; }
+.cartao-login { width: min(400px, 100%); background: var(--branco); border-radius: 24px; overflow: hidden; box-shadow: 0 24px 60px rgba(0, 0, 0, .35); }
+.cab-login { background: linear-gradient(160deg, #0e6b45, var(--esmeralda)); display: flex; justify-content: center; padding: 26px 0 22px; }
+.cab-login img { height: 92px; width: auto; display: block; }
+#login form { padding: 24px 28px 28px; }
+#login h1 { font-weight: 800; font-size: 22px; letter-spacing: -.4px; margin: 0 0 4px; }
+#login .sub { color: var(--suave); margin: 0 0 8px; font-size: 14px; }
 #login label { display: block; margin: 14px 0; color: var(--suave); font-size: 14px; font-weight: 600; }
 #login label input:not([type=checkbox]) { display: block; width: 100%; margin-top: 6px; padding: 13px 14px; border: 1px solid var(--linha); border-radius: 12px; font-size: 16px; background: #fff; }
 #login label input:focus { border-color: var(--vivo); outline: none; box-shadow: 0 0 0 3px var(--menta-2); }
-#login .linha { display: flex; align-items: center; gap: 8px; }
-#login .btn { width: 100%; margin-top: 10px; min-height: 50px; font-size: 16px; }
+#login .linha { display: flex; align-items: center; gap: 8px; font-weight: 500; }
+#login .btn { width: 100%; margin-top: 6px; min-height: 50px; font-size: 16px; }
 #login .erro { color: var(--telha); margin: 12px 0 0; }
+.rodape-login { margin: 0; color: rgba(255, 255, 255, .6); font-size: 13px; }
 input[type=checkbox] { accent-color: var(--esmeralda); width: 18px; height: 18px; }
 
 /* ---------- aviso ---------- */
@@ -206,29 +209,26 @@ tbody tr:hover { background: var(--menta); }
   .barra .pilula.so-pc { display: none; }
   .busca input { padding: 12px 0; }
   .menu { top: 62px; right: 10px; }
-  .painel { top: auto; left: 0; right: 0; bottom: 0; width: auto; height: 46vh; border-radius: 22px 22px 0 0; transition: height .25s ease; }
-  .painel.aberto { height: calc(100vh - 74px); }
+  .painel { top: auto; left: 0; right: 0; bottom: 0; width: auto; height: 46vh; height: 46dvh; border-radius: 22px 22px 0 0; transition: height .25s ease; }
+  .painel.aberto { height: calc(100vh - 72px); height: calc(100dvh - 72px); }
   .painel.fechado { height: 128px; }
   .alca { display: block; border: 0; background: none; padding: 10px 0 4px; cursor: pointer; width: 100%; }
   .alca::before { content: ""; display: block; width: 44px; height: 5px; border-radius: 9px; background: #c9d8cf; margin: 0 auto; }
   .painel-topo { padding: 4px 16px 10px; }
   .painel-topo h2 { font-size: 19px; }
   .painel-topo p { margin-bottom: 10px; }
-  .fab { right: 12px; bottom: calc(46vh + 12px); padding: 12px 18px; transition: bottom .25s ease; }
+  .fab { right: 12px; bottom: calc(46vh + 12px); bottom: calc(46dvh + 12px); padding: 12px 18px; transition: bottom .25s ease; }
   .fab.sec { left: 12px; right: auto; }
   .painel.aberto ~ .fab { display: none; }
   .painel.fechado ~ .fab { bottom: 140px; }
-  .leaflet-bottom.leaflet-right { margin-bottom: calc(46vh + 64px); }
+  .leaflet-bottom.leaflet-right { margin-bottom: calc(46vh + 64px); margin-bottom: calc(46dvh + 64px); }
   .leaflet-control-zoom { display: none; }
   .fundo-janela, .fundo-janela.flutuante { align-items: flex-end; padding: 0; background: rgba(9, 32, 22, .35); pointer-events: auto; z-index: 2000; justify-content: center; }
   .janela, .flutuante .janela { width: 100%; border-radius: 22px 22px 0 0; max-height: 90vh; animation: subir .22s ease-out; }
   .dupla { grid-template-columns: 1fr; gap: 0; }
   .ficha { grid-template-columns: 108px 1fr; }
-  #login { grid-template-columns: 1fr; grid-template-rows: auto 1fr; }
-  #login .lado { padding: 26px 22px; flex-direction: row; align-items: center; gap: 16px; }
-  #login .lado img { width: 70px; }
-  #login .lado p { font-size: 14px; }
-  #login form { align-self: start; margin-top: 26px; }
+  .cab-login img { height: 76px; }
+  #login form { padding: 20px 22px 24px; }
   .pagina-reg { padding: 74px 12px 40px; }
   .conteudo h1 { font-size: 25px; }
   .filtros-reg .exportar { width: 100%; }
