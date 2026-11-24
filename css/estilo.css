@@ -124,6 +124,8 @@ svg.ic { width: 20px; height: 20px; stroke: currentColor; fill: none; stroke-wid
 .ficha { display: grid; grid-template-columns: 116px 1fr; gap: 9px 12px; margin: 8px 0 4px; font-size: 14px; }
 .ficha dt { color: var(--suave); }
 .ficha dd { margin: 0; font-weight: 700; }
+.fw-erro { color: var(--telha); }
+.fw-ok { font-size: 12px; font-weight: 700; color: var(--vivo); background: var(--menta); border-radius: 99px; padding: 1px 8px; margin-left: 4px; }
 .historico { margin-top: 16px; border-top: 1px solid var(--linha); padding-top: 12px; }
 .historico h4 { margin: 0 0 4px; font-size: 14px; color: var(--suave); font-weight: 700; }
 .historico .reg { padding: 10px 0; border-bottom: 1px solid var(--linha); font-size: 14px; }
