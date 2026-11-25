@@ -233,7 +233,7 @@
     f.querySelectorAll('[data-r]').forEach(b => b.onclick = () => { f.remove(); ok(b.dataset.r === '1'); }); f.querySelector('[data-r="0"]').focus();
   });
   const paraLocalDT = d => { d = new Date(d); return isNaN(d) ? '' : new Date(d - d.getTimezoneOffset() * 60000).toISOString().slice(0, 16); };
-  const SITUACOES = ['Resolvido', 'Não resolvido – precisa retorno', 'Aguardando peça', 'Reaberta'];
+  const SITUACOES = ['Resolvido', 'Verificado – sem problema', 'Não resolvido – precisa retorno', 'Aguardando peça', 'Reaberta'];
   // Formulário de edição (admin). Resolve com as mudanças ou null.
   const formEditar = ap => new Promise(ok => {
     const f = caixa(`<header><div><h2>Editar registro – frota ${esc(ap.frota)}</h2><p>Registrado por ${esc(ap.nome)}</p></div></header><div class="corpo"><form class="ap">

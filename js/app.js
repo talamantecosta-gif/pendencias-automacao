@@ -223,6 +223,66 @@
     };
   }
 
+  // ---------- novo apontamento sem pendência (oportunidade) ----------
+  async function abrirApontamentoLivre() {
+    const FROTA = (D.frota || []).map(([f, d, fr, la, lo]) => ({ f, d, fr, la, lo }));
+    const porFrota = new Map(FROTA.map(x => [x.f, x]));
+    const agora = new Date(), fotos = [];
+    const j = janela(`<div><span class="etiqueta atendida">Oportunidade</span><h2>Novo apontamento</h2><p>Serviço em equipamento sem pendência aberta</p></div>`, `
+      <form class="ap">
+        <label for="nf">Frota</label>
+        <input id="nf" name="frota" list="listaFrotas" inputmode="numeric" autocomplete="off" required placeholder="Digite o número da frota">
+        <datalist id="listaFrotas">${FROTA.map(x => `<option value="${esc(x.f)}">${esc(x.d)}</option>`).join('')}</datalist>
+        <div class="equip-info" id="equipInfo"></div>
+        <div class="sugestoes" id="sugestoes"></div>
+        <label for="nfo">O que foi verificado ou feito</label>
+        <textarea id="nfo" name="obs" required placeholder="Ex.: verificado rádio e antena, reapertado conector do GPS."></textarea>
+        <div class="dupla">
+          <div><label>Início</label><input type="datetime-local" name="inicio" required value="${paraLocal(agora - 1800000)}"></div>
+          <div><label>Fim</label><input type="datetime-local" name="fim" required value="${paraLocal(agora)}"></div>
+        </div>
+        <label>Situação</label>
+        <select name="situacao"><option>Verificado – sem problema</option><option>Resolvido</option><option>Não resolvido – precisa retorno</option><option>Aguardando peça</option></select>
+        <label>Fotos (até 4, opcional)</label>
+        <label class="foto-btn">Adicionar fotos<input type="file" name="fotos" accept="image/*" multiple></label>
+        <div class="miniaturas"></div>
+        <div class="quem">Registrado por <b>${esc(S.nome)}</b></div>
+        <div class="botoes"><button class="btn primario" type="submit">Salvar registro</button><button class="btn" type="button" data-a="cancelar">Cancelar</button></div>
+      </form>`);
+    const f = $('form', j.el), mini = $('.miniaturas', f), info = $('#equipInfo', f);
+    $('[data-a=cancelar]', f).onclick = j.fechar;
+    const mostrar = () => { const x = porFrota.get(f.frota.value.trim()); info.textContent = x ? `${x.d}${x.fr ? ' · ' + x.fr : ''}` : (f.frota.value.trim() ? 'Frota fora da lista do SGPA (o registro vale do mesmo jeito)' : ''); };
+    f.frota.oninput = mostrar;
+    // equipamentos mais perto de quem está apontando (GPS) – facilita apontar o vizinho de uma pendência
+    posicaoAtual().then(pos => {
+      const ref = pos || (selecionada && temPos(selecionada) ? [selecionada.lat, selecionada.lon] : null);
+      if (!ref || !FROTA.length) return;
+      const perto = FROTA.filter(x => !D.pendencias.some(p => String(p.frota) === x.f)).map(x => ({ ...x, km: km(ref, [x.la, x.lo]) })).sort((a, b) => a.km - b.km).slice(0, 6);
+      $('#sugestoes', f).innerHTML = `<small style="width:100%">Perto ${pos ? 'de você' : 'da pendência selecionada'}:</small>` + perto.map(x => `<button type="button" data-f="${esc(x.f)}">${esc(x.f)} <small>${x.km < 1 ? Math.round(x.km * 1000) + ' m' : x.km.toFixed(1).replace('.', ',') + ' km'}</small></button>`).join('');
+      f.querySelectorAll('[data-f]').forEach(b => b.onclick = () => { f.frota.value = b.dataset.f; f.querySelectorAll('[data-f]').forEach(x => x.classList.toggle('on', x === b)); mostrar(); });
+    });
+    const desenharMini = () => { mini.innerHTML = fotos.map((u, i) => `<div><img src="${u}" alt="Foto ${i + 1}"><button type="button" data-i="${i}" aria-label="Remover foto">×</button></div>`).join('');
+      mini.querySelectorAll('button').forEach(b => b.onclick = () => { fotos.splice(+b.dataset.i, 1); desenharMini(); }); };
+    f.fotos.onchange = async () => { for (const arq of f.fotos.files) { if (fotos.length >= 4) break; try { fotos.push(await P.reduzirFoto(arq)); } catch (e) { aviso(e.message, 'erro'); } } f.fotos.value = ''; desenharMini(); };
+    f.onsubmit = async ev => {
+      ev.preventDefault();
+      const ini = new Date(f.inicio.value), fim = new Date(f.fim.value), frota = f.frota.value.trim();
+      if (fim < ini) return aviso('O fim do serviço está antes do início. Corrija os horários.', 'erro');
+      const x = porFrota.get(frota) || {};
+      const b = $('button[type=submit]', f); b.disabled = true; b.textContent = 'Salvando…';
+      const ts = new Date(), id = `${ts.getFullYear()}${P.p2(ts.getMonth() + 1)}${P.p2(ts.getDate())}-${P.p2(ts.getHours())}${P.p2(ts.getMinutes())}${P.p2(ts.getSeconds())}-${frota.replace(/\W/g, '')}-${S.usuario.replace(/\W/g, '')}`;
+      const ap = { id, pid: null, tipo: 'Oportunidade', frota, equipamento: x.d || '', ocorrencia: 'Oportunidade (sem pendência aberta)', dataAbertura: '',
+        frente: x.fr || '', fazenda: '', talhao: '', lat: x.la || null, lon: x.lo || null,
+        inicio: ini.toISOString(), fim: fim.toISOString(), duracaoMin: Math.round((fim - ini) / 60000), situacao: f.situacao.value,
+        observacao: f.obs.value.trim(), usuario: S.usuario, nome: S.nome, criadoEm: ts.toISOString(), fotos };
+      const r = await P.salvarApontamento(ap);
+      aviso(r.enviado ? 'Registro salvo e enviado.' : 'Registro salvo no aparelho. Com internet, toque em Sincronizar para enviar.', r.enviado ? 'ok' : 'erro', 6000);
+      j.fechar(); APS = await P.carregarApontamentos().catch(() => APS); marcarSinc();
+    };
+    f.frota.focus();
+  }
+  $('#btnNovoAp').onclick = () => abrirApontamentoLivre();
+
   // ---------- rota ----------
   const posicaoAtual = () => new Promise(ok => {
     if (!navigator.geolocation) return ok(null);

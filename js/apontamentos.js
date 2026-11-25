@@ -30,7 +30,7 @@
     $('#linhas').innerHTML = l.map((a, i) => `<tr data-i="${APS.indexOf(a)}" tabindex="0">
       <td class="frota">Frota ${esc(a.frota)}</td><td data-l="Equipamento">${esc(a.equipamento || '–')}</td><td class="ocorr" data-l="Ocorrência">${esc(a.ocorrencia || '–')}</td>
       <td data-l="Início">${fmtDataHora(a.inicio)}</td><td data-l="Fim">${fmtDataHora(a.fim)}</td><td data-l="Duração">${dur(a.duracaoMin)}</td>
-      <td data-l="Situação">${a.situacao === 'Resolvido' ? '<span class="etq verde">Resolvido</span>' : `<span class="etq">${esc(a.situacao)}</span>`}${a.naFila ? ' <span class="etq cinza">Falta sincronizar</span>' : ''}</td>
+      <td data-l="Situação">${a.tipo === 'Oportunidade' ? '<span class="etq oport">Oportunidade</span> ' : ''}${a.situacao === 'Resolvido' ? '<span class="etq verde">Resolvido</span>' : `<span class="etq">${esc(a.situacao)}</span>`}${a.naFila ? ' <span class="etq cinza">Falta sincronizar</span>' : ''}</td>
       <td data-l="Realizado por">${esc(a.nome)}</td><td data-l="Fotos">${(a.fotos || []).length || '–'}</td></tr>`).join('') || '<tr><td colspan="9" class="vazio">Nenhum registro com esses filtros. Ajuste as datas ou limpe a busca.</td></tr>';
     document.querySelectorAll('tbody tr[data-i]').forEach(tr => { tr.onclick = () => detalhe(APS[+tr.dataset.i]); tr.onkeydown = e => { if (e.key === 'Enter') detalhe(APS[+tr.dataset.i]); }; });
   }
@@ -71,7 +71,7 @@
   const linhasExport = () => filtrados().map(a => ({
     'Início': fmtDataHora(a.inicio), 'Fim': fmtDataHora(a.fim), 'Duração (min)': a.duracaoMin, 'Frota': a.frota, 'Equipamento': a.equipamento,
     'Ocorrência': a.ocorrencia, 'Abertura da pendência': a.dataAbertura, 'Frente': a.frente, 'Fazenda': a.fazenda, 'Talhão': a.talhao,
-    'Situação': a.situacao, 'Serviço realizado': a.observacao, 'Realizado por': a.nome, 'Fotos': (a.fotos || []).length,
+    'Tipo': a.tipo || 'Pendência', 'Situação': a.situacao, 'Serviço realizado': a.observacao, 'Realizado por': a.nome, 'Fotos': (a.fotos || []).length,
   }));
   const nomeArq = ext => `Apontamentos_Pendencias_${new Date().toISOString().slice(0, 10)}.${ext}`;
   $('#btnExcel').onclick = () => {

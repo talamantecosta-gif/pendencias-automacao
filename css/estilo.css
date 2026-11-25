@@ -69,6 +69,12 @@ svg.ic { width: 20px; height: 20px; stroke: currentColor; fill: none; stroke-wid
 .segmentos button { border: 0; background: none; padding: 8px 4px; border-radius: 9px; cursor: pointer; color: var(--suave); font-weight: 700; font-size: 14px; }
 .segmentos button[aria-pressed=true] { background: var(--branco); color: var(--esmeralda); box-shadow: 0 1px 4px rgba(16, 35, 26, .12); }
 .segmentos b { font-weight: 800; margin-left: 4px; }
+.novo-ap { width: 100%; margin-top: 10px; min-height: 42px; }
+.sugestoes { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.sugestoes button { border: 1px solid var(--linha); background: var(--branco); border-radius: 99px; padding: 6px 12px; cursor: pointer; font-weight: 600; font-size: 13px; color: var(--tinta); }
+.sugestoes button:hover, .sugestoes button.on { background: var(--menta); border-color: var(--menta-2); color: var(--esmeralda); }
+.sugestoes small { color: var(--suave); font-weight: 500; }
+.equip-info { margin-top: 6px; font-size: 13px; color: var(--suave); min-height: 18px; }
 .itens { overflow: auto; padding: 6px 8px 14px; flex: 1; }
 .item { display: grid; grid-template-columns: auto 1fr auto; gap: 12px; align-items: center; padding: 12px; border-radius: var(--raio); cursor: pointer; }
 .item:hover, .item.ativo { background: var(--menta); }
@@ -204,6 +210,7 @@ tbody tr { cursor: pointer; }
 tbody tr:hover { background: var(--menta); }
 .etq { display: inline-block; white-space: nowrap; font-size: 12px; font-weight: 700; padding: 3px 10px; border-radius: 99px; background: var(--ambar-claro); color: #8a5a14; }
 .etq.verde { background: var(--menta); color: var(--esmeralda); }
+.etq.oport { background: #e6f0fb; color: #2b5b8a; }
 .etq.cinza { background: #eef2ef; color: var(--suave); }
 .fotos-grandes img { width: 100%; border-radius: 14px; margin-top: 10px; display: block; }
 .rodape { text-align: center; color: var(--suave); font-size: 13px; padding: 24px; }
