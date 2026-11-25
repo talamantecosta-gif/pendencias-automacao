@@ -128,6 +128,7 @@ svg.ic { width: 20px; height: 20px; stroke: currentColor; fill: none; stroke-wid
 .ficha dt { color: var(--suave); }
 .ficha dd { margin: 0; font-weight: 700; }
 .fw-erro { color: var(--telha); }
+.fw-erro-pill { font-size: 12px; font-weight: 700; color: var(--telha); background: var(--telha-claro); border-radius: 99px; padding: 1px 8px; margin-left: 4px; }
 .fw-ok { font-size: 12px; font-weight: 700; color: var(--vivo); background: var(--menta); border-radius: 99px; padding: 1px 8px; margin-left: 4px; }
 .historico { margin-top: 16px; border-top: 1px solid var(--linha); padding-top: 12px; }
 .historico h4 { margin: 0 0 4px; font-size: 14px; color: var(--suave); font-weight: 700; }
